@@ -106,6 +106,26 @@ namespace ProjektAPBD.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SoftwareVersions",
+                columns: table => new
+                {
+                    IdSoftwareVersion = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IdSoftware = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SoftwareVersions", x => x.IdSoftwareVersion);
+                    table.ForeignKey(
+                        name: "FK_SoftwareVersions_Software_IdSoftware",
+                        column: x => x.IdSoftware,
+                        principalTable: "Software",
+                        principalColumn: "IdSoftware",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Contracts",
                 columns: table => new
                 {
@@ -274,7 +294,7 @@ namespace ProjektAPBD.Migrations
             migrationBuilder.InsertData(
                 table: "Software",
                 columns: new[] { "IdSoftware", "Category", "CurrentVersion", "Description", "Name" },
-                values: new object[] { 1, "Finance", "1.0", "This is a test software.", "Test" });
+                values: new object[] { 1, "Finance", "1.2", "This is a test software.", "Test" });
 
             migrationBuilder.InsertData(
                 table: "Customers",
@@ -283,6 +303,15 @@ namespace ProjektAPBD.Migrations
                 {
                     { 1, null, 1 },
                     { 2, 1, null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SoftwareVersions",
+                columns: new[] { "IdSoftwareVersion", "IdSoftware", "Version" },
+                values: new object[,]
+                {
+                    { 1, 1, "1.0" },
+                    { 2, 1, "1.1" }
                 });
 
             migrationBuilder.InsertData(
@@ -351,6 +380,11 @@ namespace ProjektAPBD.Migrations
                 column: "IdSubscription");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SoftwareVersions_IdSoftware",
+                table: "SoftwareVersions",
+                column: "IdSoftware");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_Customer",
                 table: "Subscriptions",
                 column: "Customer");
@@ -377,6 +411,9 @@ namespace ProjektAPBD.Migrations
 
             migrationBuilder.DropTable(
                 name: "PaymentsSubscriptions");
+
+            migrationBuilder.DropTable(
+                name: "SoftwareVersions");
 
             migrationBuilder.DropTable(
                 name: "Subscriptions_Discounts");

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Kolokwium2.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using ProjektAPBD.Contexts;
+using ProjektAPBD.Exceptions;
 using ProjektAPBD.Models;
 using ProjektAPBD.RequestModels.PersonRequestModels;
 
@@ -27,7 +27,7 @@ public class PersonService(DatabaseContext context) : IPersonService
         }
         
         using var transaction = await context.Database.BeginTransactionAsync();
-        var personExists = await context.People.AnyAsync(c => c.PersonPesel == person.PersonPesel);
+        var personExists = await context.Persons.AnyAsync(c => c.PersonPesel == person.PersonPesel);
         if (personExists)
         {
             throw new ArgumentException("Person with that PESEL already exists");
@@ -43,7 +43,7 @@ public class PersonService(DatabaseContext context) : IPersonService
             PersonSoftDelete = false
         };
             
-        await context.People.AddAsync(newPerson);
+        await context.Persons.AddAsync(newPerson);
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
         return newPerson.PersonId;
@@ -64,7 +64,7 @@ public class PersonService(DatabaseContext context) : IPersonService
         }
         
         using var transaction = await context.Database.BeginTransactionAsync();
-        var personToUpdate = await context.People.FirstOrDefaultAsync(p => p.PersonId == person.PersonId);
+        var personToUpdate = await context.Persons.FirstOrDefaultAsync(p => p.PersonId == person.PersonId);
         if (personToUpdate == null)
         {
             throw new ArgumentException("Person not found");
@@ -83,7 +83,7 @@ public class PersonService(DatabaseContext context) : IPersonService
     
     public async Task<List<Person>> GetAllPersons()
     {
-        return await context.People.ToListAsync();
+        return await context.Persons.ToListAsync();
     }
     
     public async Task<int> DeletePerson(int id)
@@ -94,7 +94,7 @@ public class PersonService(DatabaseContext context) : IPersonService
         }
         
         using var transaction = await context.Database.BeginTransactionAsync();
-        var personToDelete = await context.People.FirstOrDefaultAsync(p => p.PersonId == id);
+        var personToDelete = await context.Persons.FirstOrDefaultAsync(p => p.PersonId == id);
         if (personToDelete == null)
         {
             throw new NotFoundException("Person not found");

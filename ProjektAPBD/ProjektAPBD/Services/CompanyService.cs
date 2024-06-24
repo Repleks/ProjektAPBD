@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Kolokwium2.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using ProjektAPBD.Contexts;
+using ProjektAPBD.Exceptions;
 using ProjektAPBD.Models;
 using ProjektAPBD.RequestModels;
 

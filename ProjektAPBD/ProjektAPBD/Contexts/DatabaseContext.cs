@@ -15,7 +15,7 @@ public class DatabaseContext : DbContext
     
     public DbSet<PaymentContract> PaymentsContracts { get; set; }
     
-    public DbSet<Person> People { get; set; }
+    public DbSet<Person> Persons { get; set; }
     
     public DbSet<Software> Software { get; set; }
     
@@ -24,6 +24,12 @@ public class DatabaseContext : DbContext
     public DbSet<SubscriptionDicount> SubscriptionsDicounts { get; set; }
     
     public DbSet<PaymentSubscription> PaymentsSubscriptions { get; set; }
+    
+    public DbSet<ContractDiscount> ContractsDiscounts { get; set; }
+    
+    public DbSet<SoftwareVersion> SoftwareVersions { get; set; }
+    
+    
     
     protected DatabaseContext()
     {
@@ -77,7 +83,7 @@ public class DatabaseContext : DbContext
             SoftwareId = 1,
             SoftwareName = "Test",
             SoftwareDescription = "This is a test software.",
-            SoftwareCurrentVersion = "1.0",
+            SoftwareCurrentVersion = "1.2",
             SoftwareCategory = "Finance"
         });
 
@@ -139,6 +145,20 @@ public class DatabaseContext : DbContext
             SubscriptionId = 1,
             PaymentDate = new DateTime(2023, 1, 1),
             Amount = 100
+        });
+        
+        modelBuilder.Entity<SoftwareVersion>().HasData(new SoftwareVersion
+        {
+            IdSoftwareVersion = 1,
+            IdSoftware = 1,
+            Version = "1.0"
+        });
+        
+        modelBuilder.Entity<SoftwareVersion>().HasData(new SoftwareVersion
+        {
+            IdSoftwareVersion = 2,
+            IdSoftware = 1,
+            Version = "1.1"
         });
     }
 }

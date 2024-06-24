@@ -12,7 +12,7 @@ using ProjektAPBD.Contexts;
 namespace ProjektAPBD.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240624162821_companyDataBase")]
+    [Migration("20240624175942_companyDataBase")]
     partial class companyDataBase
     {
         /// <inheritdoc />
@@ -424,9 +424,45 @@ namespace ProjektAPBD.Migrations
                         {
                             SoftwareId = 1,
                             SoftwareCategory = "Finance",
-                            SoftwareCurrentVersion = "1.0",
+                            SoftwareCurrentVersion = "1.2",
                             SoftwareDescription = "This is a test software.",
                             SoftwareName = "Test"
+                        });
+                });
+
+            modelBuilder.Entity("ProjektAPBD.Models.SoftwareVersion", b =>
+                {
+                    b.Property<int>("IdSoftwareVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSoftwareVersion"));
+
+                    b.Property<int>("IdSoftware")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IdSoftwareVersion");
+
+                    b.HasIndex("IdSoftware");
+
+                    b.ToTable("SoftwareVersions");
+
+                    b.HasData(
+                        new
+                        {
+                            IdSoftwareVersion = 1,
+                            IdSoftware = 1,
+                            Version = "1.0"
+                        },
+                        new
+                        {
+                            IdSoftwareVersion = 2,
+                            IdSoftware = 1,
+                            Version = "1.1"
                         });
                 });
 
@@ -576,6 +612,17 @@ namespace ProjektAPBD.Migrations
                     b.Navigation("Subscription");
                 });
 
+            modelBuilder.Entity("ProjektAPBD.Models.SoftwareVersion", b =>
+                {
+                    b.HasOne("ProjektAPBD.Models.Software", "Software")
+                        .WithMany("SoftwareVersions")
+                        .HasForeignKey("IdSoftware")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Software");
+                });
+
             modelBuilder.Entity("ProjektAPBD.Models.Subscription", b =>
                 {
                     b.HasOne("ProjektAPBD.Models.Customer", "Customer")
@@ -646,6 +693,8 @@ namespace ProjektAPBD.Migrations
             modelBuilder.Entity("ProjektAPBD.Models.Software", b =>
                 {
                     b.Navigation("Contracts");
+
+                    b.Navigation("SoftwareVersions");
                 });
 
             modelBuilder.Entity("ProjektAPBD.Models.Subscription", b =>

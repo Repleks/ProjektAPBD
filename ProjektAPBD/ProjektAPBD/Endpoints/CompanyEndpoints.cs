@@ -1,5 +1,5 @@
-﻿using Kolokwium2.Exceptions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using ProjektAPBD.Exceptions;
 using ProjektAPBD.RequestModels;
 using ProjektAPBD.Services;
 

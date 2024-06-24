@@ -1,4 +1,4 @@
-﻿namespace Kolokwium2.Exceptions;
+﻿namespace ProjektAPBD.Exceptions;
 
 public class NotFoundException : Exception
 {

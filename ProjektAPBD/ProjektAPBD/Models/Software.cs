@@ -32,4 +32,6 @@ public class Software
     public string SoftwareCategory { get; set; }
     
     public ICollection<Contract> Contracts { get; set; }
+    
+    public ICollection<SoftwareVersion> SoftwareVersions { get; set; }
 }
