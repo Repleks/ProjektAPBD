@@ -25,4 +25,9 @@ public class PaymentContract
     [Required]
     [Column("Amount")]
     public double Amount { get; set; }
+    
+    [Required]
+    [MaxLength(100)]
+    [Column("PaymentInformation")]
+    public string PaymentInformation { get; set; }
 }

@@ -120,7 +120,8 @@ public class DatabaseContext : DbContext
             PaymentId = 1,
             ContractId = 1,
             PaymentDate = new DateTime(2023, 1, 1),
-            Amount = 1200
+            Amount = 1200,
+            PaymentInformation = "Test payment"
         });
 
         modelBuilder.Entity<Subscription>().HasData(new Subscription

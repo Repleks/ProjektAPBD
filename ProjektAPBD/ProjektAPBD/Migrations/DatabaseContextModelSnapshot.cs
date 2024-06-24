@@ -261,6 +261,12 @@ namespace ProjektAPBD.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("PaymentDate");
 
+                    b.Property<string>("PaymentInformation")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("PaymentInformation");
+
                     b.HasKey("PaymentId");
 
                     b.HasIndex("ContractId");
@@ -273,7 +279,8 @@ namespace ProjektAPBD.Migrations
                             PaymentId = 1,
                             Amount = 1200.0,
                             ContractId = 1,
-                            PaymentDate = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            PaymentDate = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentInformation = "Test payment"
                         });
                 });
 

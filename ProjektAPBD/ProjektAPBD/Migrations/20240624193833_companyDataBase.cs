@@ -218,7 +218,8 @@ namespace ProjektAPBD.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     IdContract = table.Column<int>(type: "int", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Amount = table.Column<double>(type: "float", nullable: false)
+                    Amount = table.Column<double>(type: "float", nullable: false),
+                    PaymentInformation = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -331,8 +332,8 @@ namespace ProjektAPBD.Migrations
 
             migrationBuilder.InsertData(
                 table: "PaymentsContracts",
-                columns: new[] { "IdPayment", "Amount", "IdContract", "PaymentDate" },
-                values: new object[] { 1, 1200.0, 1, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) });
+                columns: new[] { "IdPayment", "Amount", "IdContract", "PaymentDate", "PaymentInformation" },
+                values: new object[] { 1, 1200.0, 1, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Test payment" });
 
             migrationBuilder.InsertData(
                 table: "PaymentsSubscriptions",

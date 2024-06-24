@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IPaymentContractService, PaymentContractService>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DatabaseContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -29,6 +31,8 @@ var baseEndpointsGroup = app.MapGroup("api");
 
 baseEndpointsGroup.RegisterCompanyEndpoints();
 baseEndpointsGroup.RegisterPersonEndpoints();
+baseEndpointsGroup.RegisterContractEndpoints();
+baseEndpointsGroup.RegisterPaymentContractEndpoints();
 
 app.Run();
 

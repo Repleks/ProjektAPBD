@@ -19,7 +19,7 @@ public class PostContractRequestModel
     public int AdditionalSupportInYears { get; set; }
     
     [Required]
-    public int Software { get; set; }
+    public int SoftwareId { get; set; }
     
     [Required]
     public string SoftwareVersion { get; set; }
