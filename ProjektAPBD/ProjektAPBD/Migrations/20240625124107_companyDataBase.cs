@@ -285,7 +285,11 @@ namespace ProjektAPBD.Migrations
             migrationBuilder.InsertData(
                 table: "Discounts",
                 columns: new[] { "IdDiscount", "DateEnd", "DateStart", "Description", "Value" },
-                values: new object[] { 1, new DateTime(2023, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "New Year Discount", 10 });
+                values: new object[,]
+                {
+                    { 1, new DateTime(2023, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "New Year Discount", 10 },
+                    { 2, new DateTime(2025, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Test Discount", 50 }
+                });
 
             migrationBuilder.InsertData(
                 table: "Persons",
@@ -316,7 +320,8 @@ namespace ProjektAPBD.Migrations
                 values: new object[,]
                 {
                     { 1, 1, "1.0" },
-                    { 2, 1, "1.1" }
+                    { 2, 1, "1.1" },
+                    { 3, 2, "1.0" }
                 });
 
             migrationBuilder.InsertData(

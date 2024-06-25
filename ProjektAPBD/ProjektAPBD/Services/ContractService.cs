@@ -39,6 +39,13 @@ public class ContractService(DatabaseContext context) : IContractService
                 throw new NotFoundException("Software does not exist");
             }
             
+            var softwareVersion = await context.SoftwareVersions.FirstOrDefaultAsync(sv => sv.IdSoftware == contract.SoftwareId && sv.Version == contract.SoftwareVersion);
+            if (softwareVersion == null)
+            {
+                throw new NotFoundException("Software version does not exist");
+            }
+            
+            
             var contractDuration = (contract.ContractDateTo - contract.ContractDateFrom).TotalDays;
             if (contractDuration < 3 || contractDuration > 30)
             {
@@ -57,9 +64,9 @@ public class ContractService(DatabaseContext context) : IContractService
                 throw new AlreadyExistsException("Customer already has an active subscription for this software");
             }
             
-            if (contract.AdditionalSupportInYears < 1 || contract.AdditionalSupportInYears > 3)
+            if (contract.AdditionalSupportInYears < 0 || contract.AdditionalSupportInYears > 3)
             {
-                throw new ArgumentException("Additional support should be between 1 and 3 years");
+                throw new ArgumentException("Additional support should be between 1 and 3 years, or should be 0");
             }
         
             var previousCustomer = await context.Contracts.AnyAsync(c => c.IdCustomer == contract.IdCustomer) || await context.Subscriptions.AnyAsync(s => s.CustomerId == contract.IdCustomer);
@@ -84,6 +91,18 @@ public class ContractService(DatabaseContext context) : IContractService
                 TotalPrice = price,
                 Signed = false
             };
+
+            var contractDiscounts = new List<ContractDiscount>();
+            foreach (var dizcount in discounts)
+            {
+                contractDiscounts.Add(new ContractDiscount
+                {
+                    IdContract = newContract.IdContract,
+                    IdDiscount = dizcount.DiscountId
+                });
+            }
+            newContract.ContractDiscounts = contractDiscounts;
+            
         
             await context.Contracts.AddAsync(newContract);
             await context.SaveChangesAsync();

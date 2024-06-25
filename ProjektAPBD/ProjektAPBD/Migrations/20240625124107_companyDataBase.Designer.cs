@@ -12,7 +12,7 @@ using ProjektAPBD.Contexts;
 namespace ProjektAPBD.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240625113025_companyDataBase")]
+    [Migration("20240625124107_companyDataBase")]
     partial class companyDataBase
     {
         /// <inheritdoc />
@@ -240,6 +240,14 @@ namespace ProjektAPBD.Migrations
                             DiscountDateStart = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DiscountDescription = "New Year Discount",
                             DiscountValue = 10
+                        },
+                        new
+                        {
+                            DiscountId = 2,
+                            DiscountDateEnd = new DateTime(2025, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DiscountDateStart = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DiscountDescription = "Test Discount",
+                            DiscountValue = 50
                         });
                 });
 
@@ -478,6 +486,12 @@ namespace ProjektAPBD.Migrations
                             IdSoftwareVersion = 2,
                             IdSoftware = 1,
                             Version = "1.1"
+                        },
+                        new
+                        {
+                            IdSoftwareVersion = 3,
+                            IdSoftware = 2,
+                            Version = "1.0"
                         });
                 });
 

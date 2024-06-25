@@ -104,6 +104,15 @@ public class DatabaseContext : DbContext
             DiscountDateStart = new DateTime(2023, 1, 1),
             DiscountDateEnd = new DateTime(2023, 12, 31)
         });
+        
+        modelBuilder.Entity<Discount>().HasData(new Discount
+        {
+            DiscountId = 2,
+            DiscountDescription = "Test Discount",
+            DiscountValue = 50,
+            DiscountDateStart = new DateTime(2023, 1, 1),
+            DiscountDateEnd = new DateTime(2025, 12, 31)
+        });
 
         modelBuilder.Entity<Contract>().HasData(new Contract
         {
@@ -169,6 +178,13 @@ public class DatabaseContext : DbContext
             IdSoftwareVersion = 2,
             IdSoftware = 1,
             Version = "1.1"
+        });
+        
+        modelBuilder.Entity<SoftwareVersion>().HasData(new SoftwareVersion
+        {
+            IdSoftwareVersion = 3,
+            IdSoftware = 2,
+            Version = "1.0"
         });
     }
 }
