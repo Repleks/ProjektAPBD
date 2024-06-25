@@ -10,7 +10,7 @@ public static class IncomeEndpoints
     {
         var group = builder.MapGroup("income");
 
-        group.MapPut("whole-company-current", async ([FromBody] string? currCode, IIncomeService service) =>
+        group.MapPost("whole-company-current", async ([FromBody] string? currCode, IIncomeService service) =>
         {
             try
             {
@@ -23,7 +23,7 @@ public static class IncomeEndpoints
             }
         });
 
-        group.MapPut("software-current{softwareId:int}", async (int softwareId, [FromBody] string? currCode, IIncomeService service) =>
+        group.MapPost("software-current{softwareId:int}", async (int softwareId, [FromBody] string? currCode, IIncomeService service) =>
         {
             try
             {
@@ -44,7 +44,7 @@ public static class IncomeEndpoints
             }
         });
 
-        group.MapPut("whole-company-excepted", async ([FromBody] string? currCode, IIncomeService service) =>
+        group.MapPost("whole-company-excepted", async ([FromBody] string? currCode, IIncomeService service) =>
         {
             try
             {
@@ -61,7 +61,7 @@ public static class IncomeEndpoints
             }
         });
 
-        group.MapPut("software-excepted{softwareId:int}", async (int softwareId, [FromBody] string? currCode, IIncomeService service) =>
+        group.MapPost("software-excepted{softwareId:int}", async (int softwareId, [FromBody] string? currCode, IIncomeService service) =>
         {
             try
             {
