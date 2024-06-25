@@ -431,6 +431,14 @@ namespace ProjektAPBD.Migrations
                             SoftwareCurrentVersion = "1.2",
                             SoftwareDescription = "This is a test software.",
                             SoftwareName = "Test"
+                        },
+                        new
+                        {
+                            SoftwareId = 2,
+                            SoftwareCategory = "Bookkeeping",
+                            SoftwareCurrentVersion = "1.0",
+                            SoftwareDescription = "This is new test software.",
+                            SoftwareName = "Test2"
                         });
                 });
 

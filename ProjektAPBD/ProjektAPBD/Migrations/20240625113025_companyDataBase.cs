@@ -295,7 +295,11 @@ namespace ProjektAPBD.Migrations
             migrationBuilder.InsertData(
                 table: "Software",
                 columns: new[] { "IdSoftware", "Category", "CurrentVersion", "Description", "Name" },
-                values: new object[] { 1, "Finance", "1.2", "This is a test software.", "Test" });
+                values: new object[,]
+                {
+                    { 1, "Finance", "1.2", "This is a test software.", "Test" },
+                    { 2, "Bookkeeping", "1.0", "This is new test software.", "Test2" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Customers",

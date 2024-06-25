@@ -69,7 +69,7 @@ public class PersonService(DatabaseContext context) : IPersonService
         {
             if(person.PersonId < 1)
             {
-                throw new ArgumentException("Invalid person ID");
+                throw new NotFoundException("Invalid person ID");
             }
 
             var validationContext = new ValidationContext(person);
@@ -82,7 +82,7 @@ public class PersonService(DatabaseContext context) : IPersonService
             var personToUpdate = await context.Persons.FirstOrDefaultAsync(p => p.PersonId == person.PersonId);
             if (personToUpdate == null)
             {
-                throw new ArgumentException("Person not found");
+                throw new NotFoundException("Person not found");
             }
 
             personToUpdate.PersonFirstName = person.PersonFirstName;

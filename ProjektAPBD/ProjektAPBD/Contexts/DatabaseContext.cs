@@ -87,6 +87,15 @@ public class DatabaseContext : DbContext
             SoftwareCategory = "Finance"
         });
 
+        modelBuilder.Entity<Software>().HasData(new Software
+        {
+            SoftwareId = 2,
+            SoftwareName = "Test2",
+            SoftwareDescription = "This is new test software.",
+            SoftwareCurrentVersion = "1.0",
+            SoftwareCategory = "Bookkeeping"
+        });
+
         modelBuilder.Entity<Discount>().HasData(new Discount
         {
             DiscountId = 1,

@@ -12,7 +12,7 @@ using ProjektAPBD.Contexts;
 namespace ProjektAPBD.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240624193833_companyDataBase")]
+    [Migration("20240625113025_companyDataBase")]
     partial class companyDataBase
     {
         /// <inheritdoc />
@@ -434,6 +434,14 @@ namespace ProjektAPBD.Migrations
                             SoftwareCurrentVersion = "1.2",
                             SoftwareDescription = "This is a test software.",
                             SoftwareName = "Test"
+                        },
+                        new
+                        {
+                            SoftwareId = 2,
+                            SoftwareCategory = "Bookkeeping",
+                            SoftwareCurrentVersion = "1.0",
+                            SoftwareDescription = "This is new test software.",
+                            SoftwareName = "Test2"
                         });
                 });
 

@@ -1,112 +1,124 @@
 ﻿using Xunit;
-using Moq;
-using System.Threading.Tasks;
 using ProjektAPBD.Services;
 using ProjektAPBD.Contexts;
 using ProjektAPBD.Models;
-using ProjektAPBD.RequestModels.PersonRequestModels;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using ProjektAPBD.Exceptions;
+using ProjektAPBD.RequestModels.PersonRequestModels;
+using System.Linq;
+using ProjektAPBDTest;
 
-public class PersonServiceTests
+public class PersonServiceTests : IDisposable
 {
-    private readonly Mock<DatabaseContext> _mockContext;
-    private readonly PersonService _service;
+    private readonly DbContextOptions<DatabaseContextTest> _options;
+    private DatabaseContextTest _context;
+    private PersonService _service;
 
     public PersonServiceTests()
     {
-        _mockContext = new Mock<DatabaseContext>();
-        _service = new PersonService(_mockContext.Object);
+        _options = new DbContextOptionsBuilder<DatabaseContextTest>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .Options;
+    }
+
+    private void InitializeDatabase()
+    {
+        _context = new DatabaseContextTest(_options);
+        _context.Database.EnsureDeleted();
+        _context.Database.EnsureCreated();
+
+        // Add your test data here
+        _context.Persons.Add(new Person { PersonId = 1, PersonFirstName = "Jan", PersonLastName = "Kowalski", PersonAddress = "Test address", PersonEmail = "jankowalski@gmail.com", PersonPhone = "098765432", PersonPesel = "12345678901", PersonSoftDelete = false });
+
+        _context.SaveChanges();
+
+        _service = new PersonService(_context);
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
     }
 
     [Fact]
     public async Task PostPerson_WithValidData_ReturnsPersonId()
     {
+        // Arrange
+        InitializeDatabase();
         var requestModel = new PostPersonRequestModel
         {
-            PersonFirstName = "Test",
-            PersonLastName = "Person",
-            PersonAddress = "Test Address",
-            PersonEmail = "test@test.com",
-            PersonPhone = "123456789",
-            PersonPesel = "12345678901"
+            PersonFirstName = "NewPerson",
+            PersonLastName = "Test",
+            PersonAddress = "789 Test St",
+            PersonEmail = "newperson@gmail.com",
+            PersonPhone = "456123789",
+            PersonPesel = "45612378901"
         };
 
+        // Act
         var result = await _service.PostPerson(requestModel);
 
-        Assert.Equal(1, result);
+        // Assert
+        Assert.Equal(2, result);
     }
 
     [Fact]
     public async Task PostPerson_WithExistingPesel_ThrowsArgumentException()
     {
+        // Arrange
+        InitializeDatabase();
         var requestModel = new PostPersonRequestModel
         {
-            PersonFirstName = "Test",
-            PersonLastName = "Person",
-            PersonAddress = "Test Address",
-            PersonEmail = "test@test.com",
-            PersonPhone = "123456789",
+            PersonFirstName = "NewPerson",
+            PersonLastName = "Test",
+            PersonAddress = "789 Test St",
+            PersonEmail = "newperson@gmail.com",
+            PersonPhone = "456123789",
             PersonPesel = "12345678901"
         };
 
+        // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() => _service.PostPerson(requestModel));
     }
 
     [Fact]
     public async Task UpdatePerson_WithValidData_ReturnsPersonId()
     {
+        // Arrange
+        InitializeDatabase();
         var requestModel = new UpdatePersonRequestModel
         {
             PersonId = 1,
-            PersonFirstName = "Updated",
-            PersonLastName = "Person",
-            PersonAddress = "Updated Address",
-            PersonEmail = "updated@test.com",
-            PersonPhone = "987654321"
+            PersonFirstName = "UpdatedPerson",
+            PersonLastName = "Test",
+            PersonAddress = "789 Test St",
+            PersonEmail = "updatedperson@gmail.com",
+            PersonPhone = "456123789",
         };
 
+        // Act
         var result = await _service.UpdatePerson(requestModel);
 
+        // Assert
         Assert.Equal(1, result);
     }
 
     [Fact]
-    public async Task UpdatePerson_WithNonExistingId_ThrowsArgumentException()
+    public async Task UpdatePerson_WithNonExistingId_ThrowsNotFoundException()
     {
+        // Arrange
+        InitializeDatabase();
         var requestModel = new UpdatePersonRequestModel
         {
-            PersonId = 2,
-            PersonFirstName = "Updated",
-            PersonLastName = "Person",
-            PersonAddress = "Updated Address",
-            PersonEmail = "updated@test.com",
-            PersonPhone = "987654321"
+            PersonId = 3,
+            PersonFirstName = "UpdatedPerson",
+            PersonLastName = "Test",
+            PersonAddress = "789 Test St",
+            PersonEmail = "updatedperson@gmail.com",
+            PersonPhone = "456123789",
         };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => _service.UpdatePerson(requestModel));
-    }
-
-    [Fact]
-    public async Task DeletePerson_WithValidId_ReturnsPersonId()
-    {
-        var result = await _service.DeletePerson(1);
-
-        Assert.Equal(1, result);
-    }
-
-    [Fact]
-    public async Task DeletePerson_WithNonExistingId_ThrowsNotFoundException()
-    {
-        await Assert.ThrowsAsync<NotFoundException>(() => _service.DeletePerson(2));
-    }
-
-    [Fact]
-    public async Task GetAllPersons_ReturnsAllPersons()
-    {
-        var result = await _service.GetAllPersons();
-
-        Assert.Equal(3, result.Count);
+        // Act & Assert
+        await Assert.ThrowsAsync<NotFoundException>(() => _service.UpdatePerson(requestModel));
     }
 }

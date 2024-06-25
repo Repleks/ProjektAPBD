@@ -45,13 +45,13 @@ public class ContractService(DatabaseContext context) : IContractService
                 throw new ArgumentException("Contract duration should be between 3 and 30 days");
             }
         
-            var activeContractExists = await context.Contracts.AnyAsync(c => c.IdCustomer == contract.IdCustomer && c.IdSoftware == contract.SoftwareId && c.Signed && c.DateTo > DateTime.Now);
+            var activeContractExists = await context.Contracts.AnyAsync(c => c.IdCustomer == contract.IdCustomer && c.IdSoftware == contract.SoftwareId && c.Signed);
             if (activeContractExists)
             {
                 throw new AlreadyExistsException("Customer already has an active contract for this software");
             }
         
-            var activeSubscriptionExists = await context.Subscriptions.AnyAsync(s => s.CustomerId == contract.IdCustomer && s.SoftwareId == contract.SoftwareId && s.ActiveStatus && s.RenewalDate > DateTime.Now);
+            var activeSubscriptionExists = await context.Subscriptions.AnyAsync(s => s.CustomerId == contract.IdCustomer && s.SoftwareId == contract.SoftwareId && s.ActiveStatus);
             if (activeSubscriptionExists)
             {
                 throw new AlreadyExistsException("Customer already has an active subscription for this software");

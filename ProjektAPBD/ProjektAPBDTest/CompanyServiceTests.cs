@@ -1,70 +1,78 @@
 ﻿using Xunit;
-using Moq;
-using System.Threading.Tasks;
 using ProjektAPBD.Services;
-using ProjektAPBD.Contexts;
 using ProjektAPBD.Models;
-using ProjektAPBD.RequestModels;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using ProjektAPBD.Exceptions;
+using ProjektAPBD.RequestModels;
+using ProjektAPBDTest;
 
-public class CompanyServiceTests
+public class CompanyServiceTests : IDisposable
 {
-    private readonly Mock<DbSet<Company>> _mockSet;
-    private readonly Mock<DatabaseContext> _mockContext;
-    private readonly CompanyService _service;
+    private readonly DbContextOptions<DatabaseContextTest> _options;
+    private DatabaseContextTest _context;
+    private CompanyService _service;
 
     public CompanyServiceTests()
     {
-        _mockSet = new Mock<DbSet<Company>>();
-        _mockContext = new Mock<DatabaseContext>();
-        _mockContext.Setup(c => c.Companies).Returns(_mockSet.Object);
-        _service = new CompanyService(_mockContext.Object);
+        _options = new DbContextOptionsBuilder<DatabaseContextTest>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .Options;
+    }
+
+    private void InitializeDatabase()
+    {
+        _context = new DatabaseContextTest(_options);
+        _context.Database.EnsureDeleted();
+        _context.Database.EnsureCreated();
+
+        // Add your test data here
+        _context.Companies.Add(new Company { CompanyId = 1, CompanyName = "TestCompany", CompanyAddress = "123 Test St", CompanyEmail = "testcompany@gmail.com", CompanyPhone = "123456789", CompanyKRS = "12345678901234" });
+        _context.Companies.Add(new Company { CompanyId = 2, CompanyName = "TestCompany2", CompanyAddress = "456 Test St", CompanyEmail = "testcompany2@gmail.com", CompanyPhone = "987654321", CompanyKRS = "98765432101234" });
+
+        _context.SaveChanges();
+
+        _service = new CompanyService(_context);
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
     }
 
     [Fact]
     public async Task PostCompany_WithValidData_ReturnsCompanyId()
     {
         // Arrange
+        InitializeDatabase();
         var requestModel = new PostCompanyRequestModel
         {
-            CompanyName = "Test Company",
-            CompanyAddress = "Test Address",
-            CompanyEmail = "test@test.com",
-            CompanyPhone = "123456789",
-            CompanyKRS = "1234567890"
+            CompanyName = "NewCompany",
+            CompanyAddress = "789 Test St",
+            CompanyEmail = "newcompany@gmail.com",
+            CompanyPhone = "456123789",
+            CompanyKRS = "45612378901234"
         };
 
         // Act
         var result = await _service.PostCompany(requestModel);
 
         // Assert
-        Assert.Equal(1, result);
+        Assert.Equal(3, result);
     }
 
     [Fact]
     public async Task PostCompany_WithExistingKRS_ThrowsArgumentException()
     {
         // Arrange
+        InitializeDatabase();
         var requestModel = new PostCompanyRequestModel
         {
-            CompanyName = "Test Company",
-            CompanyAddress = "Test Address",
-            CompanyEmail = "test@test.com",
-            CompanyPhone = "123456789",
-            CompanyKRS = "1234567890"
+            CompanyName = "NewCompany",
+            CompanyAddress = "789 Test St",
+            CompanyEmail = "newcompany@gmail.com",
+            CompanyPhone = "456123789",
+            CompanyKRS = "12345678901234"
         };
-
-        var companies = new List<Company>
-        {
-            new Company { CompanyKRS = "1234567890" }
-        }.AsQueryable();
-
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.Provider).Returns(companies.Provider);
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.Expression).Returns(companies.Expression);
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.ElementType).Returns(companies.ElementType);
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.GetEnumerator()).Returns(companies.GetEnumerator());
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() => _service.PostCompany(requestModel));
@@ -74,24 +82,15 @@ public class CompanyServiceTests
     public async Task UpdateCompany_WithValidData_ReturnsCompanyId()
     {
         // Arrange
+        InitializeDatabase();
         var requestModel = new UpdateCompanyRequestModel
         {
             IdCompany = 1,
-            CompanyName = "Updated Company",
-            CompanyAddress = "Updated Address",
-            CompanyEmail = "updated@test.com",
-            CompanyPhone = "987654321",
+            CompanyName = "UpdatedCompany",
+            CompanyAddress = "789 Test St",
+            CompanyEmail = "updatedcompany@gmail.com",
+            CompanyPhone = "456123789",
         };
-
-        var companies = new List<Company>
-        {
-            new Company { CompanyId = 1, CompanyName = "Test Company", CompanyAddress = "Test Address", CompanyEmail = "test@test.com", CompanyPhone = "123456789", CompanyKRS = "1234567890" }
-        }.AsQueryable();
-
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.Provider).Returns(companies.Provider);
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.Expression).Returns(companies.Expression);
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.ElementType).Returns(companies.ElementType);
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.GetEnumerator()).Returns(companies.GetEnumerator());
 
         // Act
         var result = await _service.UpdateCompany(requestModel);
@@ -104,24 +103,15 @@ public class CompanyServiceTests
     public async Task UpdateCompany_WithNonExistingId_ThrowsNotFoundException()
     {
         // Arrange
+        InitializeDatabase();
         var requestModel = new UpdateCompanyRequestModel
         {
-            IdCompany = 2,
-            CompanyName = "Updated Company",
-            CompanyAddress = "Updated Address",
-            CompanyEmail = "updated@test.com",
-            CompanyPhone = "987654321",
+            IdCompany = 3,
+            CompanyName = "UpdatedCompany",
+            CompanyAddress = "789 Test St",
+            CompanyEmail = "updatedcompany@gmail.com",
+            CompanyPhone = "456123789",
         };
-
-        var companies = new List<Company>
-        {
-            new Company { CompanyId = 1, CompanyName = "Test Company", CompanyAddress = "Test Address", CompanyEmail = "test@test.com", CompanyPhone = "123456789", CompanyKRS = "1234567890" }
-        }.AsQueryable();
-
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.Provider).Returns(companies.Provider);
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.Expression).Returns(companies.Expression);
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.ElementType).Returns(companies.ElementType);
-        _mockSet.As<IQueryable<Company>>().Setup(m => m.GetEnumerator()).Returns(companies.GetEnumerator());
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => _service.UpdateCompany(requestModel));
