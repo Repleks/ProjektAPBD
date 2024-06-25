@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjektAPBD.Exceptions;
 using ProjektAPBD.RequestModels.EmployeeRequestModels;
 using ProjektAPBD.Services;
 
@@ -48,6 +49,14 @@ public static class EmployeeEndpoints
                 var result = await service.Login(username, password);
                 return Results.Ok(result);
             }
+            catch (ArgumentException e)
+            {
+                return Results.BadRequest(e.Message);
+            }
+            catch (NotFoundException e)
+            {
+                return Results.NotFound(e.Message);
+            }
             catch (Exception e)
             {
                 return Results.Problem(e.Message);
@@ -60,6 +69,14 @@ public static class EmployeeEndpoints
             {
                 var result = await service.DeleteEmployee(id);
                 return Results.Ok("Employee deleted " + result);
+            }
+            catch (ArgumentException e)
+            {
+                return Results.BadRequest(e.Message);
+            }
+            catch (NotFoundException e)
+            {
+                return Results.NotFound(e.Message);
             }
             catch (Exception e)
             {

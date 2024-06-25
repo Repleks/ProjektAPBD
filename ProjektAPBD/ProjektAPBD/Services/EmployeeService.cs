@@ -1,10 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ProjektAPBD.Contexts;
+using ProjektAPBD.Exceptions;
 using ProjektAPBD.Models;
 
 namespace ProjektAPBD.Services;
@@ -32,10 +32,10 @@ public class EmployeeService : IEmployeeService
         var employee = await _context.Employees.SingleOrDefaultAsync(x => x.Username == username);
 
         if (employee == null)
-            return null;
+            throw new NotFoundException("Employee not found");
 
         if (!VerifyPasswordHash(password, employee.PasswordHash, employee.PasswordSalt))
-            return null;
+            throw new ArgumentException("Invalid password");
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_config["JWT:Key"]);
@@ -101,10 +101,15 @@ public class EmployeeService : IEmployeeService
 
     public async Task<int> DeleteEmployee(int id)
     {
+        if (id < 1)
+        {
+            throw new ArgumentException("Invalid id");
+        }
+        
         var employee = await _context.Employees.FindAsync(id);
         if (employee == null)
         {
-            return 0;
+            throw new NotFoundException("Employee not found");
         }
 
         _context.Employees.Remove(employee);
@@ -114,26 +119,48 @@ public class EmployeeService : IEmployeeService
 
     private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
     {
-        if (password == null) throw new ArgumentNullException("password");
-        if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
+        if (password == null)
+        {
+            throw new ArgumentException("Password cannot be null");
+        }
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            throw new ArgumentException("Value cannot be empty or whitespace only string.");
+        }
 
         using (var hmac = new System.Security.Cryptography.HMACSHA512())
         {
             passwordSalt = hmac.Key;
-            passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
         }
     }
 
     private bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
     {
-        if (password == null) throw new ArgumentNullException("password");
-        if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
-        if (storedHash.Length != 64) throw new ArgumentException("Invalid length of password hash (64 bytes expected).", "passwordHash");
-        if (storedSalt.Length != 128) throw new ArgumentException("Invalid length of password salt (128 bytes expected).", "passwordHash");
+        if (password == null)
+        {
+            throw new ArgumentException("Password cannot be null");
+        }
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            throw new ArgumentException("Value cannot be empty or whitespace only string.");
+        }
+
+        if (storedHash.Length != 64)
+        {
+            throw new ArgumentException("Invalid length of password hash (64 bytes expected).");
+        }
+
+        if (storedSalt.Length != 128)
+        {
+            throw new ArgumentException("Invalid length of password salt (128 bytes expected).");
+        }
 
         using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
         {
-            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
             for (int i = 0; i < computedHash.Length; i++)
             {
                 if (computedHash[i] != storedHash[i]) return false;
@@ -141,34 +168,5 @@ public class EmployeeService : IEmployeeService
         }
 
         return true;
-    }
-    public async Task<bool> IsAdmin(int employeeId)
-    {
-        bool result = false;
-        var employee = await _context.Employees.FindAsync(employeeId);
-        if (employee.Role != null)
-        {
-            if (employee.Role.ToLower() == "admin")
-            {
-                result = true;
-                return result;
-            }
-        }
-        return result;
-    }
-
-    public async Task<bool> IsUser(int employeeId)
-    {
-        bool result = false;
-        var employee = await _context.Employees.FindAsync(employeeId);
-        if (employee.Role != null)
-        {
-            if (employee.Role.ToLower() == "user")
-            {
-                result = true;
-                return result;
-            }
-        }
-        return result;
     }
 }
