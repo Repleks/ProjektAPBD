@@ -29,7 +29,7 @@ public class DatabaseContext : DbContext
     
     public DbSet<SoftwareVersion> SoftwareVersions { get; set; }
     
-    
+    public DbSet<Employee> Employees { get; set; }
     
     protected DatabaseContext()
     {

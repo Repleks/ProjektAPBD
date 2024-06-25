@@ -47,7 +47,7 @@ public static class CompanyEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
         
         group.MapGet("", async (ICompanyService service) =>
         {
@@ -60,6 +60,6 @@ public static class CompanyEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
     }
 }

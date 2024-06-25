@@ -21,7 +21,7 @@ public static class IncomeEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
 
         group.MapPost("software-current{softwareId:int}", async (int softwareId, [FromBody] string? currCode, IIncomeService service) =>
         {
@@ -42,7 +42,7 @@ public static class IncomeEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
 
         group.MapPost("whole-company-excepted", async ([FromBody] string? currCode, IIncomeService service) =>
         {
@@ -59,7 +59,7 @@ public static class IncomeEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
 
         group.MapPost("software-excepted{softwareId:int}", async (int softwareId, [FromBody] string? currCode, IIncomeService service) =>
         {
@@ -80,6 +80,6 @@ public static class IncomeEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
     }
 }

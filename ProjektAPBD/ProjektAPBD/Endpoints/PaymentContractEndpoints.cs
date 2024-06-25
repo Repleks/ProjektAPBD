@@ -47,6 +47,6 @@ public static class PaymentContractEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
     }
 }

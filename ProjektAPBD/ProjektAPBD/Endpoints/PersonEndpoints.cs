@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProjektAPBD.Exceptions;
 using ProjektAPBD.RequestModels.PersonRequestModels;
 using ProjektAPBD.Services;
@@ -47,7 +48,7 @@ public static class PersonEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
         
         group.MapGet("", async (IPersonService service) =>
         {
@@ -60,7 +61,7 @@ public static class PersonEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
         
         group.MapDelete("{id}", async ([FromRoute] int id, IPersonService service) =>
         {
@@ -81,6 +82,6 @@ public static class PersonEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
     }
 }

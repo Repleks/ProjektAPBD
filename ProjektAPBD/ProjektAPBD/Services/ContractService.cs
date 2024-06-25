@@ -38,13 +38,12 @@ public class ContractService(DatabaseContext context) : IContractService
             {
                 throw new NotFoundException("Software does not exist");
             }
-            
-            var softwareVersion = await context.SoftwareVersions.FirstOrDefaultAsync(sv => sv.IdSoftware == contract.SoftwareId && sv.Version == contract.SoftwareVersion);
-            if (softwareVersion == null)
+
+            var softwareVersionExists = await context.SoftwareVersions.AnyAsync(sv => sv.IdSoftware == contract.SoftwareId && sv.Version == contract.SoftwareVersion);
+            if (!softwareVersionExists)
             {
                 throw new NotFoundException("Software version does not exist");
             }
-            
             
             var contractDuration = (contract.ContractDateTo - contract.ContractDateFrom).TotalDays;
             if (contractDuration < 3 || contractDuration > 30)
