@@ -27,7 +27,7 @@ public class ContractService(DatabaseContext context) : IContractService
                 throw new ArgumentException("Invalid data");
             }
     
-            var customerExists = await context.Customers.AnyAsync(c => c.CustomerId == contract.IdCustomer);
+            var customerExists = await context.Customers.AnyAsync(c => c.CustomerId == contract.IdCustomer && c.Person.PersonSoftDelete == false);
             if (!customerExists)
             {
                 throw new NotFoundException("Customer does not exist");
@@ -71,10 +71,27 @@ public class ContractService(DatabaseContext context) : IContractService
             var previousCustomer = await context.Contracts.AnyAsync(c => c.IdCustomer == contract.IdCustomer) || await context.Subscriptions.AnyAsync(s => s.CustomerId == contract.IdCustomer);
             var previousCustomerDiscount = previousCustomer ? 0.05 : 0.00;
             
-            var discounts = await context.Discounts.Where(d => d.DiscountDateStart <= DateTime.Now && d.DiscountDateEnd >= DateTime.Now).ToListAsync();
-            
-            var maxDiscount = discounts.Any() ? discounts.Max(d => d.DiscountValue) / 100.0 : 0.00;
+            var softwareDiscounts = await context.SoftwareDiscounts
+                .Include(sd => sd.Discount)
+                .Where(sd => sd.SoftwareId == contract.SoftwareId)
+                .ToListAsync();
         
+            double maxDiscount = 0;
+            
+            foreach (var softwareDiscount in softwareDiscounts)
+            {
+                if (softwareDiscount.Discount.DiscountDateStart <= contract.ContractDateFrom &&
+                    softwareDiscount.Discount.DiscountDateEnd >= contract.ContractDateTo)
+                {
+                    if (softwareDiscount.Discount.DiscountValue > maxDiscount)
+                    {
+                        maxDiscount = softwareDiscount.Discount.DiscountValue;
+                    }
+                }
+            }
+            
+            maxDiscount /= 100;
+            
             var discount = previousCustomerDiscount + maxDiscount;
         
             var price = contract.Price * (1 - discount) + contract.AdditionalSupportInYears * 1000;
@@ -90,19 +107,7 @@ public class ContractService(DatabaseContext context) : IContractService
                 TotalPrice = price,
                 Signed = false
             };
-
-            var contractDiscounts = new List<ContractDiscount>();
-            foreach (var dizcount in discounts)
-            {
-                contractDiscounts.Add(new ContractDiscount
-                {
-                    IdContract = newContract.IdContract,
-                    IdDiscount = dizcount.DiscountId
-                });
-            }
-            newContract.ContractDiscounts = contractDiscounts;
             
-        
             await context.Contracts.AddAsync(newContract);
             await context.SaveChangesAsync();
     

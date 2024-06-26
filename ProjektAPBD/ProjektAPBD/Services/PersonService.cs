@@ -47,8 +47,18 @@ public class PersonService(DatabaseContext context) : IPersonService
                 PersonPesel = person.PersonPesel,
                 PersonSoftDelete = false
             };
+            
+            var maxIdPerson = await context.Persons.MaxAsync(p => p.PersonId);
+            newPerson.PersonId = maxIdPerson + 1;
+            
+            var Customer = new Customer
+            {
+                PersonId = newPerson.PersonId,
+                CompanyId = null
+            };
 
             await context.Persons.AddAsync(newPerson);
+            await context.Customers.AddAsync(Customer);
             await context.SaveChangesAsync();
 
             await transaction.CommitAsync();

@@ -28,7 +28,7 @@ public class Discount
     [Column("DateEnd")]
     public DateTime DiscountDateEnd { get; set; }
     
-    public ICollection<ContractDiscount> ContractDiscounts { get; set; }
-    
     public ICollection<SubscriptionDicount> SubscriptionDicounts { get; set; }
+    
+    public ICollection<SoftwareDiscount> SoftwareDiscounts { get; set; }
 }

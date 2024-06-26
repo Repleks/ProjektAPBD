@@ -46,5 +46,8 @@ public class Contract
     [Column("Signed")]
     public bool Signed { get; set; } = false;
     
-    public ICollection<ContractDiscount> ContractDiscounts { get; set; }
+    [Required]
+    [Column("Discount")]
+    public int DiscountId { get; set; }
+    
 }

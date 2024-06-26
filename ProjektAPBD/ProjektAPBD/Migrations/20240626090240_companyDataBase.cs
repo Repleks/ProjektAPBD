@@ -122,6 +122,32 @@ namespace ProjektAPBD.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SoftwareDiscounts",
+                columns: table => new
+                {
+                    IdSoftwareDiscount = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IdSoftware = table.Column<int>(type: "int", nullable: false),
+                    IdDiscount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SoftwareDiscounts", x => x.IdSoftwareDiscount);
+                    table.ForeignKey(
+                        name: "FK_SoftwareDiscounts_Discounts_IdDiscount",
+                        column: x => x.IdDiscount,
+                        principalTable: "Discounts",
+                        principalColumn: "IdDiscount",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SoftwareDiscounts_Software_IdSoftware",
+                        column: x => x.IdSoftware,
+                        principalTable: "Software",
+                        principalColumn: "IdSoftware",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SoftwareVersions",
                 columns: table => new
                 {
@@ -154,7 +180,8 @@ namespace ProjektAPBD.Migrations
                     PricePerMonth = table.Column<double>(type: "float", nullable: false),
                     AdditionalSupport = table.Column<int>(type: "int", nullable: false),
                     TotalPrice = table.Column<double>(type: "float", nullable: false),
-                    Signed = table.Column<bool>(type: "bit", nullable: false)
+                    Signed = table.Column<bool>(type: "bit", nullable: false),
+                    Discount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -199,30 +226,6 @@ namespace ProjektAPBD.Migrations
                         column: x => x.Software,
                         principalTable: "Software",
                         principalColumn: "IdSoftware",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Contracts_Discounts",
-                columns: table => new
-                {
-                    IdContract = table.Column<int>(type: "int", nullable: false),
-                    IdDiscount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Contracts_Discounts", x => new { x.IdContract, x.IdDiscount });
-                    table.ForeignKey(
-                        name: "FK_Contracts_Discounts_Contracts_IdContract",
-                        column: x => x.IdContract,
-                        principalTable: "Contracts",
-                        principalColumn: "IdContract",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Contracts_Discounts_Discounts_IdDiscount",
-                        column: x => x.IdDiscount,
-                        principalTable: "Discounts",
-                        principalColumn: "IdDiscount",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -331,6 +334,16 @@ namespace ProjektAPBD.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "SoftwareDiscounts",
+                columns: new[] { "IdSoftwareDiscount", "IdDiscount", "IdSoftware" },
+                values: new object[,]
+                {
+                    { 1, 1, 1 },
+                    { 2, 1, 2 },
+                    { 3, 2, 2 }
+                });
+
+            migrationBuilder.InsertData(
                 table: "SoftwareVersions",
                 columns: new[] { "IdSoftwareVersion", "IdSoftware", "Version" },
                 values: new object[,]
@@ -342,18 +355,13 @@ namespace ProjektAPBD.Migrations
 
             migrationBuilder.InsertData(
                 table: "Contracts",
-                columns: new[] { "IdContract", "AdditionalSupport", "DateFrom", "DateTo", "IdCustomer", "IdSoftware", "PricePerMonth", "Signed", "TotalPrice" },
-                values: new object[] { 1, 0, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1, 100.0, false, 1200.0 });
+                columns: new[] { "IdContract", "AdditionalSupport", "DateFrom", "DateTo", "Discount", "IdCustomer", "IdSoftware", "PricePerMonth", "Signed", "TotalPrice" },
+                values: new object[] { 1, 0, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 1, 1, 100.0, false, 1200.0 });
 
             migrationBuilder.InsertData(
                 table: "Subscriptions",
                 columns: new[] { "IdSubscription", "ActiveStatus", "Customer", "PricePerMonth", "RenewalDate", "Software" },
                 values: new object[] { 1, true, 1, 100.0, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 });
-
-            migrationBuilder.InsertData(
-                table: "Contracts_Discounts",
-                columns: new[] { "IdContract", "IdDiscount" },
-                values: new object[] { 1, 1 });
 
             migrationBuilder.InsertData(
                 table: "PaymentsContracts",
@@ -381,11 +389,6 @@ namespace ProjektAPBD.Migrations
                 column: "IdSoftware");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Contracts_Discounts_IdDiscount",
-                table: "Contracts_Discounts",
-                column: "IdDiscount");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Customers_CompanyId",
                 table: "Customers",
                 column: "CompanyId");
@@ -404,6 +407,16 @@ namespace ProjektAPBD.Migrations
                 name: "IX_PaymentsSubscriptions_IdSubscription",
                 table: "PaymentsSubscriptions",
                 column: "IdSubscription");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SoftwareDiscounts_IdDiscount",
+                table: "SoftwareDiscounts",
+                column: "IdDiscount");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SoftwareDiscounts_IdSoftware",
+                table: "SoftwareDiscounts",
+                column: "IdSoftware");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SoftwareVersions_IdSoftware",
@@ -430,9 +443,6 @@ namespace ProjektAPBD.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Contracts_Discounts");
-
-            migrationBuilder.DropTable(
                 name: "Employees");
 
             migrationBuilder.DropTable(
@@ -440,6 +450,9 @@ namespace ProjektAPBD.Migrations
 
             migrationBuilder.DropTable(
                 name: "PaymentsSubscriptions");
+
+            migrationBuilder.DropTable(
+                name: "SoftwareDiscounts");
 
             migrationBuilder.DropTable(
                 name: "SoftwareVersions");

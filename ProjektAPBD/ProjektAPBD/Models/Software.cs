@@ -34,4 +34,6 @@ public class Software
     public ICollection<Contract> Contracts { get; set; }
     
     public ICollection<SoftwareVersion> SoftwareVersions { get; set; }
+    
+    public ICollection<SoftwareDiscount> SoftwareDiscounts { get; set; }
 }

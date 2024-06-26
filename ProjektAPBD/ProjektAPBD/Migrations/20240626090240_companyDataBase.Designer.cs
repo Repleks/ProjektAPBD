@@ -12,7 +12,7 @@ using ProjektAPBD.Contexts;
 namespace ProjektAPBD.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240625141324_companyDataBase")]
+    [Migration("20240626090240_companyDataBase")]
     partial class companyDataBase
     {
         /// <inheritdoc />
@@ -99,6 +99,10 @@ namespace ProjektAPBD.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DateTo");
 
+                    b.Property<int>("DiscountId")
+                        .HasColumnType("int")
+                        .HasColumnName("Discount");
+
                     b.Property<int>("IdCustomer")
                         .HasColumnType("int")
                         .HasColumnName("IdCustomer");
@@ -134,35 +138,12 @@ namespace ProjektAPBD.Migrations
                             AdditionalSupport = 0,
                             DateFrom = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateTo = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DiscountId = 0,
                             IdCustomer = 1,
                             IdSoftware = 1,
                             PricePerMonth = 100.0,
                             Signed = false,
                             TotalPrice = 1200.0
-                        });
-                });
-
-            modelBuilder.Entity("ProjektAPBD.Models.ContractDiscount", b =>
-                {
-                    b.Property<int>("IdContract")
-                        .HasColumnType("int")
-                        .HasColumnName("IdContract");
-
-                    b.Property<int>("IdDiscount")
-                        .HasColumnType("int")
-                        .HasColumnName("IdDiscount");
-
-                    b.HasKey("IdContract", "IdDiscount");
-
-                    b.HasIndex("IdDiscount");
-
-                    b.ToTable("Contracts_Discounts");
-
-                    b.HasData(
-                        new
-                        {
-                            IdContract = 1,
-                            IdDiscount = 1
                         });
                 });
 
@@ -482,6 +463,52 @@ namespace ProjektAPBD.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ProjektAPBD.Models.SoftwareDiscount", b =>
+                {
+                    b.Property<int>("SoftwareDiscountId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("IdSoftwareDiscount");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SoftwareDiscountId"));
+
+                    b.Property<int>("DiscountId")
+                        .HasColumnType("int")
+                        .HasColumnName("IdDiscount");
+
+                    b.Property<int>("SoftwareId")
+                        .HasColumnType("int")
+                        .HasColumnName("IdSoftware");
+
+                    b.HasKey("SoftwareDiscountId");
+
+                    b.HasIndex("DiscountId");
+
+                    b.HasIndex("SoftwareId");
+
+                    b.ToTable("SoftwareDiscounts");
+
+                    b.HasData(
+                        new
+                        {
+                            SoftwareDiscountId = 1,
+                            DiscountId = 1,
+                            SoftwareId = 1
+                        },
+                        new
+                        {
+                            SoftwareDiscountId = 2,
+                            DiscountId = 1,
+                            SoftwareId = 2
+                        },
+                        new
+                        {
+                            SoftwareDiscountId = 3,
+                            DiscountId = 2,
+                            SoftwareId = 2
+                        });
+                });
+
             modelBuilder.Entity("ProjektAPBD.Models.SoftwareVersion", b =>
                 {
                     b.Property<int>("IdSoftwareVersion")
@@ -614,25 +641,6 @@ namespace ProjektAPBD.Migrations
                     b.Navigation("Software");
                 });
 
-            modelBuilder.Entity("ProjektAPBD.Models.ContractDiscount", b =>
-                {
-                    b.HasOne("ProjektAPBD.Models.Contract", "Contract")
-                        .WithMany("ContractDiscounts")
-                        .HasForeignKey("IdContract")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProjektAPBD.Models.Discount", "Discount")
-                        .WithMany("ContractDiscounts")
-                        .HasForeignKey("IdDiscount")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
-
-                    b.Navigation("Discount");
-                });
-
             modelBuilder.Entity("ProjektAPBD.Models.Customer", b =>
                 {
                     b.HasOne("ProjektAPBD.Models.Company", "Company")
@@ -668,6 +676,25 @@ namespace ProjektAPBD.Migrations
                         .IsRequired();
 
                     b.Navigation("Subscription");
+                });
+
+            modelBuilder.Entity("ProjektAPBD.Models.SoftwareDiscount", b =>
+                {
+                    b.HasOne("ProjektAPBD.Models.Discount", "Discount")
+                        .WithMany("SoftwareDiscounts")
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjektAPBD.Models.Software", "Software")
+                        .WithMany("SoftwareDiscounts")
+                        .HasForeignKey("SoftwareId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discount");
+
+                    b.Navigation("Software");
                 });
 
             modelBuilder.Entity("ProjektAPBD.Models.SoftwareVersion", b =>
@@ -724,11 +751,6 @@ namespace ProjektAPBD.Migrations
                     b.Navigation("Customers");
                 });
 
-            modelBuilder.Entity("ProjektAPBD.Models.Contract", b =>
-                {
-                    b.Navigation("ContractDiscounts");
-                });
-
             modelBuilder.Entity("ProjektAPBD.Models.Customer", b =>
                 {
                     b.Navigation("Contracts");
@@ -738,7 +760,7 @@ namespace ProjektAPBD.Migrations
 
             modelBuilder.Entity("ProjektAPBD.Models.Discount", b =>
                 {
-                    b.Navigation("ContractDiscounts");
+                    b.Navigation("SoftwareDiscounts");
 
                     b.Navigation("SubscriptionDicounts");
                 });
@@ -751,6 +773,8 @@ namespace ProjektAPBD.Migrations
             modelBuilder.Entity("ProjektAPBD.Models.Software", b =>
                 {
                     b.Navigation("Contracts");
+
+                    b.Navigation("SoftwareDiscounts");
 
                     b.Navigation("SoftwareVersions");
                 });

@@ -25,11 +25,11 @@ public class DatabaseContext : DbContext
     
     public DbSet<PaymentSubscription> PaymentsSubscriptions { get; set; }
     
-    public DbSet<ContractDiscount> ContractsDiscounts { get; set; }
-    
     public DbSet<SoftwareVersion> SoftwareVersions { get; set; }
     
     public DbSet<Employee> Employees { get; set; }
+    
+    public DbSet<SoftwareDiscount> SoftwareDiscounts { get; set; }
     
     protected DatabaseContext()
     {
@@ -113,6 +113,27 @@ public class DatabaseContext : DbContext
             DiscountDateStart = new DateTime(2023, 1, 1),
             DiscountDateEnd = new DateTime(2025, 12, 31)
         });
+        
+        modelBuilder.Entity<SoftwareDiscount>().HasData(new SoftwareDiscount
+        {
+            SoftwareDiscountId = 1,
+            SoftwareId = 1,
+            DiscountId = 1
+        });
+        
+        modelBuilder.Entity<SoftwareDiscount>().HasData(new SoftwareDiscount
+        {
+            SoftwareDiscountId = 2,
+            SoftwareId = 2,
+            DiscountId = 1
+        });
+        
+        modelBuilder.Entity<SoftwareDiscount>().HasData(new SoftwareDiscount
+        {
+            SoftwareDiscountId = 3,
+            SoftwareId = 2,
+            DiscountId = 2
+        });
 
         modelBuilder.Entity<Contract>().HasData(new Contract
         {
@@ -125,12 +146,6 @@ public class DatabaseContext : DbContext
             AdditionalSupport = 0,
             TotalPrice = 1200,
             Signed = false
-        });
-
-        modelBuilder.Entity<ContractDiscount>().HasData(new ContractDiscount
-        {
-            IdContract = 1,
-            IdDiscount = 1
         });
 
         modelBuilder.Entity<PaymentContract>().HasData(new PaymentContract

@@ -159,24 +159,7 @@ public class ContractServiceTests : IDisposable
 
         await Assert.ThrowsAsync<AlreadyExistsException>(() => _service.PostContract(requestModel));
     }
-
-    // [Fact]
-    // public async Task PostContract_WithActiveSubscription_ThrowsAlreadyExistsException()
-    // {
-    //     InitializeDatabase();
-    //     var requestModel = new PostContractRequestModel
-    //     {
-    //         IdCustomer = 1,
-    //         SoftwareId = 1,
-    //         ContractDateFrom = DateTime.Now.AddDays(1),
-    //         ContractDateTo = DateTime.Now.AddDays(10),
-    //         Price = 1000,
-    //         AdditionalSupportInYears = 1
-    //     };
-    //
-    //     await Assert.ThrowsAsync<AlreadyExistsException>(() => _service.PostContract(requestModel));
-    // }
-
+    
     [Fact]
     public async Task PostContract_WithInvalidAdditionalSupport_ThrowsArgumentException()
     {
