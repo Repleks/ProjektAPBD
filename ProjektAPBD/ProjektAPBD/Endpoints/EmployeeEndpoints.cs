@@ -10,7 +10,7 @@ public static class EmployeeEndpoints
     public static void RegisterEmployeeEndpoints(this RouteGroupBuilder builder)
     {
         var group = builder.MapGroup("employees");
-        
+
         group.MapPost("register", async ([FromBody] RegisterEmployeeRequestModel model, IEmployeeService service) =>
         {
             try

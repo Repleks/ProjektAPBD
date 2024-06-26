@@ -34,7 +34,7 @@ public static class ContractEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("user");
 
         group.MapGet("", async (IContractService service) =>
         {
@@ -47,7 +47,7 @@ public static class ContractEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("admin");
         
         group.MapDelete("{id:int}", async (int id, IContractService service) =>
         {

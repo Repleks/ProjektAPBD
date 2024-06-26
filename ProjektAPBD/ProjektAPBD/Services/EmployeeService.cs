@@ -32,10 +32,14 @@ public class EmployeeService : IEmployeeService
         var employee = await _context.Employees.SingleOrDefaultAsync(x => x.Username == username);
 
         if (employee == null)
+        {
             throw new NotFoundException("Employee not found");
+        }
 
         if (!VerifyPasswordHash(password, employee.PasswordHash, employee.PasswordSalt))
+        {
             throw new ArgumentException("Invalid password");
+        }
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_config["JWT:Key"]);
@@ -65,6 +69,12 @@ public class EmployeeService : IEmployeeService
             throw new ArgumentException("Username, password and role cannot be empty");
         }
         
+        role = role.ToLower();
+        if (role != "admin" && role != "user")
+        {
+            throw new ArgumentException("Role must be either admin or user");
+        }
+        
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
@@ -81,7 +91,7 @@ public class EmployeeService : IEmployeeService
             var employee = new Employee
             {
                 Username = username,
-                Role = role,
+                Role = role.ToLower(),
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt
             };

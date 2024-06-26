@@ -16,7 +16,7 @@ public static class CompanyEndpoints
             try
             {
                 var result = await service.PostCompany(model);
-                return Results.Ok("Company created "+result);
+                return Results.Ok("Company created " + result);
             }
             catch (ArgumentException e)
             {
@@ -26,7 +26,7 @@ public static class CompanyEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("user");
         
         group.MapPost("update", async ([FromBody] UpdateCompanyRequestModel model, ICompanyService service) =>
         {

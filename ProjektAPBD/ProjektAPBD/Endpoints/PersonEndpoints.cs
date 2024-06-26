@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ProjektAPBD.Exceptions;
 using ProjektAPBD.RequestModels.PersonRequestModels;
 using ProjektAPBD.Services;
@@ -27,7 +26,7 @@ public static class PersonEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("user");
         
         group.MapPost("update", async ([FromBody] UpdatePersonRequestModel model, IPersonService service) =>
         {

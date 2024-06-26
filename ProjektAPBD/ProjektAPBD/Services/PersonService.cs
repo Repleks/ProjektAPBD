@@ -51,17 +51,16 @@ public class PersonService : IPersonService
                 PersonPesel = person.PersonPesel,
                 PersonSoftDelete = false
             };
-            
+
+            await _context.Persons.AddAsync(newPerson);
             var maxIdPerson = await _context.Persons.MaxAsync(p => p.PersonId);
-            newPerson.PersonId = maxIdPerson + 1;
-            
+
             var Customer = new Customer
             {
-                PersonId = newPerson.PersonId,
+                PersonId = maxIdPerson,
                 CompanyId = null
             };
 
-            await _context.Persons.AddAsync(newPerson);
             await _context.Customers.AddAsync(Customer);
             await _context.SaveChangesAsync();
 

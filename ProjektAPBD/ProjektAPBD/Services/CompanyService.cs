@@ -50,6 +50,17 @@ public class CompanyService : ICompanyService
             };
 
             await _context.Companies.AddAsync(newCompany);
+            
+            var maxIdCompany = await _context.Companies.MaxAsync(c => c.CompanyId);
+            
+            var Customer = new Customer
+            {
+                CompanyId = maxIdCompany,
+                PersonId = null
+            };
+            
+            await _context.Customers.AddAsync(Customer);
+            
             await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();

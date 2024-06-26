@@ -34,7 +34,7 @@ public static class PaymentContractEndpoints
             {
                 return Results.Problem(e.Message);
             }
-        });
+        }).RequireAuthorization("user");
         
         group.MapGet("", async (IPaymentContractService service) =>
         {
