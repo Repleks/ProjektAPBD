@@ -14,11 +14,16 @@ public interface ICompanyService
     Task<List<Company>> GetAllCompanies();
 }
 
-public class CompanyService(DatabaseContext context) : ICompanyService
+public class CompanyService : ICompanyService
 {
+    private readonly DatabaseContext _context;
+    public CompanyService(DatabaseContext context)
+    {
+        _context = context;
+    }
     public async Task<int> PostCompany(PostCompanyRequestModel company)
     {
-        using var transaction = await context.Database.BeginTransactionAsync();
+        using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
@@ -29,7 +34,7 @@ public class CompanyService(DatabaseContext context) : ICompanyService
                 throw new ArgumentException("Invalid data");
             }
 
-            var companyExists = await context.Companies.AnyAsync(c => c.CompanyKRS == company.CompanyKRS);
+            var companyExists = await _context.Companies.AnyAsync(c => c.CompanyKRS == company.CompanyKRS);
             if (companyExists)
             {
                 throw new ArgumentException("Company with that KRS already exists");
@@ -44,8 +49,8 @@ public class CompanyService(DatabaseContext context) : ICompanyService
                 CompanyKRS = company.CompanyKRS
             };
 
-            await context.Companies.AddAsync(newCompany);
-            await context.SaveChangesAsync();
+            await _context.Companies.AddAsync(newCompany);
+            await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
 
@@ -60,7 +65,7 @@ public class CompanyService(DatabaseContext context) : ICompanyService
     
     public async Task<int> UpdateCompany(UpdateCompanyRequestModel company)
     {
-        using var transaction = await context.Database.BeginTransactionAsync();
+        using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
@@ -76,7 +81,7 @@ public class CompanyService(DatabaseContext context) : ICompanyService
                 throw new ArgumentException("Invalid data");
             }
 
-            var companyToUpdate = await context.Companies.FirstOrDefaultAsync(c => c.CompanyId == company.IdCompany);
+            var companyToUpdate = await _context.Companies.FirstOrDefaultAsync(c => c.CompanyId == company.IdCompany);
             if (companyToUpdate == null)
             {
                 throw new NotFoundException("Company not found");
@@ -87,7 +92,7 @@ public class CompanyService(DatabaseContext context) : ICompanyService
             companyToUpdate.CompanyEmail = company.CompanyEmail;
             companyToUpdate.CompanyPhone = company.CompanyPhone;
 
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
 
@@ -102,7 +107,7 @@ public class CompanyService(DatabaseContext context) : ICompanyService
     
     public async Task<List<Company>> GetAllCompanies()
     {
-        return await context.Companies.ToListAsync();
+        return await _context.Companies.ToListAsync();
     }
     
 }

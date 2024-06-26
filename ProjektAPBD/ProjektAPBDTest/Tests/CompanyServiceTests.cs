@@ -1,5 +1,4 @@
-﻿using Xunit;
-using ProjektAPBD.Services;
+﻿using ProjektAPBD.Services;
 using ProjektAPBD.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

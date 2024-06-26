@@ -12,11 +12,16 @@ public interface IPaymentContractService
     Task<int> PostPaymentContract(PostPaymentContractRequestModel paymentContract);   
     Task<List<PaymentContract>> GetAllPaymentsContracts();
 }
-public class PaymentContractService(DatabaseContext context) : IPaymentContractService
+public class PaymentContractService : IPaymentContractService
 {
+    private readonly DatabaseContext _context;
+    public PaymentContractService(DatabaseContext context)
+    {
+        _context = context;
+    }
     public async Task<int> PostPaymentContract(PostPaymentContractRequestModel paymentContract)
     {
-        using var transaction = await context.Database.BeginTransactionAsync();
+        using var transaction = await _context.Database.BeginTransactionAsync();
     
         try
         {
@@ -27,13 +32,13 @@ public class PaymentContractService(DatabaseContext context) : IPaymentContractS
                 throw new ArgumentException("Invalid data");
             }
     
-            var contractExists = await context.Contracts.AnyAsync(c => c.IdContract == paymentContract.ContractId);
+            var contractExists = await _context.Contracts.AnyAsync(c => c.IdContract == paymentContract.ContractId);
             if (!contractExists)
             {
                 throw new NotFoundException("Contract does not exist");
             }
             
-            var contract = await context.Contracts.FirstOrDefaultAsync(c => c.IdContract == paymentContract.ContractId);
+            var contract = await _context.Contracts.FirstOrDefaultAsync(c => c.IdContract == paymentContract.ContractId);
             if (contract.TotalPrice < paymentContract.Amount)
             {
                 throw new ArgumentException("Payment exceeds the total contract amount");
@@ -41,13 +46,13 @@ public class PaymentContractService(DatabaseContext context) : IPaymentContractS
     
             if (contract.DateTo < DateTime.Now)
             {
-                var payments = await context.PaymentsContracts.Where(pc => pc.ContractId == paymentContract.ContractId).ToListAsync();
+                var payments = await _context.PaymentsContracts.Where(pc => pc.ContractId == paymentContract.ContractId).ToListAsync();
                 foreach (var payment in payments)
                 {
                     payment.Amount = 0;
                     payment.PaymentInformation = "Payment after due date";
                 }
-                await context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 throw new TooLateException("Cannot accept payment after the due date");
             }
     
@@ -60,14 +65,14 @@ public class PaymentContractService(DatabaseContext context) : IPaymentContractS
                 PaymentInformation = paymentContract.PaymentInformation
             };
     
-            await context.PaymentsContracts.AddAsync(newPaymentContract);
-            await context.SaveChangesAsync();
+            await _context.PaymentsContracts.AddAsync(newPaymentContract);
+            await _context.SaveChangesAsync();
     
-            var totalPaid = await context.PaymentsContracts.Where(pc => pc.ContractId == paymentContract.ContractId).SumAsync(pc => pc.Amount);
+            var totalPaid = await _context.PaymentsContracts.Where(pc => pc.ContractId == paymentContract.ContractId).SumAsync(pc => pc.Amount);
             if (totalPaid >= contract.TotalPrice)
             {
                 contract.Signed = true;
-                await context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
     
             await transaction.CommitAsync();
@@ -82,6 +87,6 @@ public class PaymentContractService(DatabaseContext context) : IPaymentContractS
     }
     public async Task<List<PaymentContract>> GetAllPaymentsContracts()
     {
-        return await context.PaymentsContracts.ToListAsync();
+        return await _context.PaymentsContracts.ToListAsync();
     }
 }

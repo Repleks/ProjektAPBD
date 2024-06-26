@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ProjektAPBD.Contexts;
 using ProjektAPBD.Exceptions;
@@ -16,11 +15,16 @@ public interface IPersonService
     Task<int> DeletePerson(int id);
 }
 
-public class PersonService(DatabaseContext context) : IPersonService
+public class PersonService : IPersonService
 {
+    private readonly DatabaseContext _context;
+    public PersonService(DatabaseContext context)
+    {
+        _context = context;
+    }
     public async Task<int> PostPerson(PostPersonRequestModel person)
     {
-        using var transaction = await context.Database.BeginTransactionAsync();
+        using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
@@ -31,7 +35,7 @@ public class PersonService(DatabaseContext context) : IPersonService
                 throw new ArgumentException("Invalid data");
             }
 
-            var personExists = await context.Persons.AnyAsync(c => c.PersonPesel == person.PersonPesel);
+            var personExists = await _context.Persons.AnyAsync(c => c.PersonPesel == person.PersonPesel);
             if (personExists)
             {
                 throw new ArgumentException("Person with that PESEL already exists");
@@ -48,7 +52,7 @@ public class PersonService(DatabaseContext context) : IPersonService
                 PersonSoftDelete = false
             };
             
-            var maxIdPerson = await context.Persons.MaxAsync(p => p.PersonId);
+            var maxIdPerson = await _context.Persons.MaxAsync(p => p.PersonId);
             newPerson.PersonId = maxIdPerson + 1;
             
             var Customer = new Customer
@@ -57,9 +61,9 @@ public class PersonService(DatabaseContext context) : IPersonService
                 CompanyId = null
             };
 
-            await context.Persons.AddAsync(newPerson);
-            await context.Customers.AddAsync(Customer);
-            await context.SaveChangesAsync();
+            await _context.Persons.AddAsync(newPerson);
+            await _context.Customers.AddAsync(Customer);
+            await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
 
@@ -74,7 +78,7 @@ public class PersonService(DatabaseContext context) : IPersonService
     
     public async Task<int> UpdatePerson(UpdatePersonRequestModel person)
     {
-        using var transaction = await context.Database.BeginTransactionAsync();
+        using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
@@ -90,7 +94,7 @@ public class PersonService(DatabaseContext context) : IPersonService
                 throw new ArgumentException("Invalid data");
             }
 
-            var personToUpdate = await context.Persons.FirstOrDefaultAsync(p => p.PersonId == person.PersonId);
+            var personToUpdate = await _context.Persons.FirstOrDefaultAsync(p => p.PersonId == person.PersonId);
             if (personToUpdate == null)
             {
                 throw new NotFoundException("Person not found");
@@ -102,7 +106,7 @@ public class PersonService(DatabaseContext context) : IPersonService
             personToUpdate.PersonEmail = person.PersonEmail;
             personToUpdate.PersonPhone = person.PersonPhone;
 
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
 
@@ -117,12 +121,12 @@ public class PersonService(DatabaseContext context) : IPersonService
     
     public async Task<List<Person>> GetAllPersons()
     {
-        return await context.Persons.ToListAsync();
+        return await _context.Persons.ToListAsync();
     }
     
     public async Task<int> DeletePerson(int id)
     {
-        using var transaction = await context.Database.BeginTransactionAsync();
+        using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
@@ -131,7 +135,7 @@ public class PersonService(DatabaseContext context) : IPersonService
                 throw new ArgumentException("Invalid person ID");
             }
 
-            var personToDelete = await context.Persons.FirstOrDefaultAsync(p => p.PersonId == id);
+            var personToDelete = await _context.Persons.FirstOrDefaultAsync(p => p.PersonId == id);
             if (personToDelete == null)
             {
                 throw new NotFoundException("Person not found");
@@ -145,7 +149,7 @@ public class PersonService(DatabaseContext context) : IPersonService
             personToDelete.PersonPhone = "Deleted";
             personToDelete.PersonPesel = "Deleted";
 
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
 

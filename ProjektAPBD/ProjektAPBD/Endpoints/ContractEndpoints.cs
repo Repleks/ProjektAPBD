@@ -48,5 +48,26 @@ public static class ContractEndpoints
                 return Results.Problem(e.Message);
             }
         });
+        
+        group.MapDelete("{id:int}", async (int id, IContractService service) =>
+        {
+            try
+            {
+                var result = await service.DeleteContract(id);
+                return Results.Ok("Contract deleted " + result);
+            }
+            catch (NotFoundException e)
+            {
+                return Results.NotFound(e.Message);
+            }
+            catch (ArgumentException e)
+            {
+                return Results.BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return Results.Problem(e.Message);
+            }
+        }).RequireAuthorization("admin");
     }
 }

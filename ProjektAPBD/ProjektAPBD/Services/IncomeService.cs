@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using ProjektAPBD.Contexts;
 using ProjektAPBD.Exceptions;
@@ -13,11 +12,16 @@ public interface IIncomeService
     Task<double> GetIncomeForWholeCompanyExcepted(string currCode);
     Task<double> GetIncomeForSoftwareCurrentExcepted(int softwareId, string currCode);
 }
-public class IncomeService(DatabaseContext context) : IIncomeService
+public class IncomeService : IIncomeService
 {
+    private readonly DatabaseContext _context;
+    public IncomeService(DatabaseContext context)
+    {
+        _context = context;
+    }
     public async Task<double> GetIncomeForWholeCompanyCurrent(string? currCode)
     {
-        var totalIncome = await context.Contracts
+        var totalIncome = await _context.Contracts
             .Where(c => c.Signed == true)
             .SumAsync(c => c.TotalPrice);
         if(currCode != null)
@@ -47,12 +51,12 @@ public class IncomeService(DatabaseContext context) : IIncomeService
         {
             throw new ArgumentException("Invalid software ID");
         }
-        var softwareExists = await context.Software.AnyAsync(s => s.SoftwareId == softwareId);
+        var softwareExists = await _context.Software.AnyAsync(s => s.SoftwareId == softwareId);
         if (!softwareExists)
         {
             throw new NotFoundException("Software does not exist");
         }
-        var softwareIncome = await context.Contracts
+        var softwareIncome = await _context.Contracts
             .Where(c => c.Signed == true && c.IdSoftware == softwareId)
             .SumAsync(c => c.TotalPrice);
         if(currCode != null)
@@ -78,7 +82,7 @@ public class IncomeService(DatabaseContext context) : IIncomeService
     
     public async Task<double> GetIncomeForWholeCompanyExcepted(string? currCode)
     {
-        var totalIncome = await context.Contracts
+        var totalIncome = await _context.Contracts
             .SumAsync(c => c.TotalPrice);
         if(currCode != null)
         {
@@ -107,12 +111,12 @@ public class IncomeService(DatabaseContext context) : IIncomeService
         {
             throw new ArgumentException("Invalid software ID");
         }
-        var softwareExists = await context.Software.AnyAsync(s => s.SoftwareId == softwareId);
+        var softwareExists = await _context.Software.AnyAsync(s => s.SoftwareId == softwareId);
         if (!softwareExists)
         {
             throw new NotFoundException("Software does not exist");
         }
-        var softwareIncome = await context.Contracts
+        var softwareIncome = await _context.Contracts
             .Where(c => c.IdSoftware == softwareId)
             .SumAsync(c => c.TotalPrice);
         if(currCode != null)

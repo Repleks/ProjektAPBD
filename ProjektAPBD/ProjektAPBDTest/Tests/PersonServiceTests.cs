@@ -1,11 +1,8 @@
-﻿using Xunit;
-using ProjektAPBD.Services;
-using ProjektAPBD.Contexts;
+﻿using ProjektAPBD.Services;
 using ProjektAPBD.Models;
 using Microsoft.EntityFrameworkCore;
 using ProjektAPBD.Exceptions;
 using ProjektAPBD.RequestModels.PersonRequestModels;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using ProjektAPBDTest;
 
