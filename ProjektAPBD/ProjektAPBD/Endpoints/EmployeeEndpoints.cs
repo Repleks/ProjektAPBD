@@ -40,7 +40,6 @@ public static class EmployeeEndpoints
                 return Results.Problem(e.Message);
             }
         }).RequireAuthorization("admin");
-
         
         group.MapPost("login", async (string username, string password, IEmployeeService service) =>
         {

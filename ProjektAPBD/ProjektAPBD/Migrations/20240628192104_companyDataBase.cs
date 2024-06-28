@@ -23,7 +23,7 @@ namespace ProjektAPBD.Migrations
                     Address = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    KRS = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false)
+                    KRS = table.Column<string>(type: "nvarchar(9)", maxLength: 9, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -208,9 +208,12 @@ namespace ProjektAPBD.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Customer = table.Column<int>(type: "int", nullable: false),
                     Software = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RenewalDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PricePerMonth = table.Column<double>(type: "float", nullable: false),
-                    ActiveStatus = table.Column<bool>(type: "bit", nullable: false)
+                    FirstPaymentPrice = table.Column<double>(type: "float", nullable: false),
+                    ActiveStatus = table.Column<bool>(type: "bit", nullable: false),
+                    ActivationDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -272,34 +275,10 @@ namespace ProjektAPBD.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Subscriptions_Discounts",
-                columns: table => new
-                {
-                    IdSubscription = table.Column<int>(type: "int", nullable: false),
-                    IdDiscount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Subscriptions_Discounts", x => new { x.IdSubscription, x.IdDiscount });
-                    table.ForeignKey(
-                        name: "FK_Subscriptions_Discounts_Discounts_IdDiscount",
-                        column: x => x.IdDiscount,
-                        principalTable: "Discounts",
-                        principalColumn: "IdDiscount",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Subscriptions_Discounts_Subscriptions_IdSubscription",
-                        column: x => x.IdSubscription,
-                        principalTable: "Subscriptions",
-                        principalColumn: "IdSubscription",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.InsertData(
                 table: "Companies",
                 columns: new[] { "IdCompany", "Address", "Email", "KRS", "Name", "Phone" },
-                values: new object[] { 1, "123 Test St", "testcompany@gmail.com", "12345678901234", "TestCompany", "123456789" });
+                values: new object[] { 1, "123 Test St", "testcompany@gmail.com", "123456789", "TestCompany", "123456789" });
 
             migrationBuilder.InsertData(
                 table: "Discounts",
@@ -360,8 +339,8 @@ namespace ProjektAPBD.Migrations
 
             migrationBuilder.InsertData(
                 table: "Subscriptions",
-                columns: new[] { "IdSubscription", "ActiveStatus", "Customer", "PricePerMonth", "RenewalDate", "Software" },
-                values: new object[] { 1, true, 1, 100.0, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 });
+                columns: new[] { "IdSubscription", "ActivationDate", "ActiveStatus", "Customer", "FirstPaymentPrice", "PricePerMonth", "RenewalDate", "Software", "Name" },
+                values: new object[] { 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, 1, 100.0, 100.0, new DateTime(2024, 7, 28, 21, 21, 4, 169, DateTimeKind.Local).AddTicks(9546), 1, "Test Subscription" });
 
             migrationBuilder.InsertData(
                 table: "PaymentsContracts",
@@ -372,11 +351,6 @@ namespace ProjektAPBD.Migrations
                 table: "PaymentsSubscriptions",
                 columns: new[] { "IdPayment", "Amount", "PaymentDate", "IdSubscription" },
                 values: new object[] { 1, 100.0, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 });
-
-            migrationBuilder.InsertData(
-                table: "Subscriptions_Discounts",
-                columns: new[] { "IdDiscount", "IdSubscription" },
-                values: new object[] { 1, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_IdCustomer",
@@ -432,11 +406,6 @@ namespace ProjektAPBD.Migrations
                 name: "IX_Subscriptions_Software",
                 table: "Subscriptions",
                 column: "Software");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Subscriptions_Discounts_IdDiscount",
-                table: "Subscriptions_Discounts",
-                column: "IdDiscount");
         }
 
         /// <inheritdoc />
@@ -458,16 +427,13 @@ namespace ProjektAPBD.Migrations
                 name: "SoftwareVersions");
 
             migrationBuilder.DropTable(
-                name: "Subscriptions_Discounts");
-
-            migrationBuilder.DropTable(
                 name: "Contracts");
 
             migrationBuilder.DropTable(
-                name: "Discounts");
+                name: "Subscriptions");
 
             migrationBuilder.DropTable(
-                name: "Subscriptions");
+                name: "Discounts");
 
             migrationBuilder.DropTable(
                 name: "Customers");

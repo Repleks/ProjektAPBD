@@ -26,6 +26,10 @@ public class Subscription
     public Software Software { get; set; }
     
     [Required]
+    [Column("Name")]
+    public string SubscriptionName { get; set; }
+    
+    [Required]
     [Column("RenewalDate")]
     public DateTime RenewalDate { get; set; }
     
@@ -33,10 +37,15 @@ public class Subscription
     [Column("PricePerMonth")]
     public double PricePerMonth { get; set; }
     
+    [Required]
+    [Column("FirstPaymentPrice")]
+    public double FirstPaymentPrice { get; set; }
+
     [Column("ActiveStatus")]
     public bool ActiveStatus { get; set; } = true;
-    
-    public ICollection<SubscriptionDicount> SubscriptionDicounts { get; set; }
-    
+
+    [Column("ActivationDate")]
+    public DateTime ActivationDate { get; set; }
+
     public ICollection<PaymentSubscription> PaymentSubscriptions { get; set; }
 }

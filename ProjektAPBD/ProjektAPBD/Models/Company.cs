@@ -32,7 +32,7 @@ public class Company
     public string CompanyPhone { get; set; }
     
     [Required]
-    [MaxLength(14)]
+    [MaxLength(9)]
     [Column("KRS")]
     public string CompanyKRS { get; set; }
     

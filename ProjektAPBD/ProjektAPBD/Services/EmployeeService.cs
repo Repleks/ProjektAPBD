@@ -76,6 +76,7 @@ public class EmployeeService : IEmployeeService
         }
         
         using var transaction = await _context.Database.BeginTransactionAsync();
+        
         try
         {
 
@@ -133,12 +134,7 @@ public class EmployeeService : IEmployeeService
         {
             throw new ArgumentException("Password cannot be null");
         }
-
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            throw new ArgumentException("Value cannot be empty or whitespace only string.");
-        }
-
+        
         using (var hmac = new System.Security.Cryptography.HMACSHA512())
         {
             passwordSalt = hmac.Key;
@@ -152,22 +148,7 @@ public class EmployeeService : IEmployeeService
         {
             throw new ArgumentException("Password cannot be null");
         }
-
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            throw new ArgumentException("Value cannot be empty or whitespace only string.");
-        }
-
-        if (storedHash.Length != 64)
-        {
-            throw new ArgumentException("Invalid length of password hash (64 bytes expected).");
-        }
-
-        if (storedSalt.Length != 128)
-        {
-            throw new ArgumentException("Invalid length of password salt (128 bytes expected).");
-        }
-
+        
         using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
         {
             var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));

@@ -12,7 +12,7 @@ using ProjektAPBD.Contexts;
 namespace ProjektAPBD.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240626090240_companyDataBase")]
+    [Migration("20240628192104_companyDataBase")]
     partial class companyDataBase
     {
         /// <inheritdoc />
@@ -47,8 +47,8 @@ namespace ProjektAPBD.Migrations
 
                     b.Property<string>("CompanyKRS")
                         .IsRequired()
-                        .HasMaxLength(14)
-                        .HasColumnType("nvarchar(14)")
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)")
                         .HasColumnName("KRS");
 
                     b.Property<string>("CompanyName")
@@ -72,7 +72,7 @@ namespace ProjektAPBD.Migrations
                             CompanyId = 1,
                             CompanyAddress = "123 Test St",
                             CompanyEmail = "testcompany@gmail.com",
-                            CompanyKRS = "12345678901234",
+                            CompanyKRS = "123456789",
                             CompanyName = "TestCompany",
                             CompanyPhone = "123456789"
                         });
@@ -560,6 +560,10 @@ namespace ProjektAPBD.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubscriptionId"));
 
+                    b.Property<DateTime>("ActivationDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ActivationDate");
+
                     b.Property<bool>("ActiveStatus")
                         .HasColumnType("bit")
                         .HasColumnName("ActiveStatus");
@@ -567,6 +571,10 @@ namespace ProjektAPBD.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int")
                         .HasColumnName("Customer");
+
+                    b.Property<double>("FirstPaymentPrice")
+                        .HasColumnType("float")
+                        .HasColumnName("FirstPaymentPrice");
 
                     b.Property<double>("PricePerMonth")
                         .HasColumnType("float")
@@ -580,6 +588,11 @@ namespace ProjektAPBD.Migrations
                         .HasColumnType("int")
                         .HasColumnName("Software");
 
+                    b.Property<string>("SubscriptionName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Name");
+
                     b.HasKey("SubscriptionId");
 
                     b.HasIndex("CustomerId");
@@ -592,33 +605,14 @@ namespace ProjektAPBD.Migrations
                         new
                         {
                             SubscriptionId = 1,
+                            ActivationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ActiveStatus = true,
                             CustomerId = 1,
+                            FirstPaymentPrice = 100.0,
                             PricePerMonth = 100.0,
-                            RenewalDate = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            SoftwareId = 1
-                        });
-                });
-
-            modelBuilder.Entity("ProjektAPBD.Models.SubscriptionDicount", b =>
-                {
-                    b.Property<int>("IdSubscription")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdDiscount")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdSubscription", "IdDiscount");
-
-                    b.HasIndex("IdDiscount");
-
-                    b.ToTable("Subscriptions_Discounts");
-
-                    b.HasData(
-                        new
-                        {
-                            IdSubscription = 1,
-                            IdDiscount = 1
+                            RenewalDate = new DateTime(2024, 7, 28, 21, 21, 4, 169, DateTimeKind.Local).AddTicks(9546),
+                            SoftwareId = 1,
+                            SubscriptionName = "Test Subscription"
                         });
                 });
 
@@ -727,25 +721,6 @@ namespace ProjektAPBD.Migrations
                     b.Navigation("Software");
                 });
 
-            modelBuilder.Entity("ProjektAPBD.Models.SubscriptionDicount", b =>
-                {
-                    b.HasOne("ProjektAPBD.Models.Discount", "Discount")
-                        .WithMany("SubscriptionDicounts")
-                        .HasForeignKey("IdDiscount")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProjektAPBD.Models.Subscription", "Subscription")
-                        .WithMany("SubscriptionDicounts")
-                        .HasForeignKey("IdSubscription")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Discount");
-
-                    b.Navigation("Subscription");
-                });
-
             modelBuilder.Entity("ProjektAPBD.Models.Company", b =>
                 {
                     b.Navigation("Customers");
@@ -761,8 +736,6 @@ namespace ProjektAPBD.Migrations
             modelBuilder.Entity("ProjektAPBD.Models.Discount", b =>
                 {
                     b.Navigation("SoftwareDiscounts");
-
-                    b.Navigation("SubscriptionDicounts");
                 });
 
             modelBuilder.Entity("ProjektAPBD.Models.Person", b =>
@@ -782,8 +755,6 @@ namespace ProjektAPBD.Migrations
             modelBuilder.Entity("ProjektAPBD.Models.Subscription", b =>
                 {
                     b.Navigation("PaymentSubscriptions");
-
-                    b.Navigation("SubscriptionDicounts");
                 });
 #pragma warning restore 612, 618
         }

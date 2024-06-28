@@ -21,9 +21,15 @@ public class IncomeService : IIncomeService
     }
     public async Task<double> GetIncomeForWholeCompanyCurrent(string? currCode)
     {
-        var totalIncome = await _context.Contracts
+        var totalIncomeFromContracts = await _context.Contracts
             .Where(c => c.Signed == true)
             .SumAsync(c => c.TotalPrice);
+
+        var totalIncomeFromSubscriptions = await _context.PaymentsSubscriptions
+            .Where(ps => ps.Subscription.ActiveStatus == true)
+            .SumAsync(ps => ps.Amount);
+
+        var totalIncome = totalIncomeFromContracts + totalIncomeFromSubscriptions;
         if(currCode != null)
         {
             using var httpClient = new HttpClient();
@@ -51,14 +57,23 @@ public class IncomeService : IIncomeService
         {
             throw new ArgumentException("Invalid software ID");
         }
+        
         var softwareExists = await _context.Software.AnyAsync(s => s.SoftwareId == softwareId);
         if (!softwareExists)
         {
             throw new NotFoundException("Software does not exist");
         }
-        var softwareIncome = await _context.Contracts
+        
+        var softwareIncomeFromContracts = await _context.Contracts
             .Where(c => c.Signed == true && c.IdSoftware == softwareId)
             .SumAsync(c => c.TotalPrice);
+
+        var softwareIncomeFromSubscriptions = await _context.PaymentsSubscriptions
+            .Where(ps => ps.Subscription.SoftwareId == softwareId && ps.Subscription.ActiveStatus == true)
+            .SumAsync(ps => ps.Amount);
+
+        var totalIncome = softwareIncomeFromContracts + softwareIncomeFromSubscriptions;
+        
         if(currCode != null)
         {
             using var httpClient = new HttpClient();
@@ -70,20 +85,29 @@ public class IncomeService : IIncomeService
                 var jsonDocument = JsonDocument.Parse(responseContent);
                 var exchangeRate = jsonDocument.RootElement.GetProperty("rates")[0].GetProperty("mid").GetDouble();
 
-                softwareIncome /= exchangeRate;
+                totalIncome /= exchangeRate;
             }
             else
             {
                 throw new ArgumentException("Invalid currency code");
             }
         }
-        return softwareIncome;
+        return totalIncome;
     }
     
     public async Task<double> GetIncomeForWholeCompanyExcepted(string? currCode)
     {
-        var totalIncome = await _context.Contracts
+        var totalIncomeFromContracts = await _context.Contracts
             .SumAsync(c => c.TotalPrice);
+
+        var totalIncomeFromSubscriptions = await _context.PaymentsSubscriptions
+            .SumAsync(ps => ps.Amount);
+
+        var totalIncomeFromMonthlyFees = await _context.Subscriptions
+            .SumAsync(s => s.PricePerMonth);
+
+        var totalIncome = totalIncomeFromContracts + totalIncomeFromSubscriptions + totalIncomeFromMonthlyFees;
+        
         if(currCode != null)
         {
             using var httpClient = new HttpClient();
@@ -111,14 +135,27 @@ public class IncomeService : IIncomeService
         {
             throw new ArgumentException("Invalid software ID");
         }
+        
         var softwareExists = await _context.Software.AnyAsync(s => s.SoftwareId == softwareId);
         if (!softwareExists)
         {
             throw new NotFoundException("Software does not exist");
         }
-        var softwareIncome = await _context.Contracts
+        
+        var softwareIncomeFromContracts = await _context.Contracts
             .Where(c => c.IdSoftware == softwareId)
             .SumAsync(c => c.TotalPrice);
+
+        var softwareIncomeFromSubscriptions = await _context.PaymentsSubscriptions
+            .Where(ps => ps.Subscription.SoftwareId == softwareId)
+            .SumAsync(ps => ps.Amount);
+
+        var softwareIncomeFromMonthlyFees = await _context.Subscriptions
+            .Where(s => s.SoftwareId == softwareId)
+            .SumAsync(s => s.PricePerMonth);
+        
+        var totalIncome = softwareIncomeFromContracts + softwareIncomeFromSubscriptions + softwareIncomeFromMonthlyFees;
+        
         if(currCode != null)
         {
             using var httpClient = new HttpClient();
@@ -130,14 +167,14 @@ public class IncomeService : IIncomeService
                 var jsonDocument = JsonDocument.Parse(responseContent);
                 var exchangeRate = jsonDocument.RootElement.GetProperty("rates")[0].GetProperty("mid").GetDouble();
 
-                softwareIncome /= exchangeRate;
+                totalIncome /= exchangeRate;
             }
             else
             {
                 throw new ArgumentException("Invalid currency code");
             }
         }
-        return softwareIncome;
+        return totalIncome;
     }
     
 }

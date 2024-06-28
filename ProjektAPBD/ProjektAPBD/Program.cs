@@ -18,6 +18,9 @@ builder.Services.AddScoped<IContractService, ContractService>();
 builder.Services.AddScoped<IPaymentContractService, PaymentContractService>();
 builder.Services.AddScoped<IIncomeService, IncomeService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IPaymentSubscriptionService, PaymentSubscriptionService>();
+builder.Services.AddScoped<ISubcriptionService, SubcriptionService>();
+
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DatabaseContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -85,6 +88,8 @@ baseEndpointsGroup.RegisterPersonEndpoints();
 baseEndpointsGroup.RegisterContractEndpoints();
 baseEndpointsGroup.RegisterPaymentContractEndpoints();
 baseEndpointsGroup.RegisterIncomeEndpoints();
+baseEndpointsGroup.RegisterPaymentSubscriptionEndpoints();
+baseEndpointsGroup.RegisterSubscriptionEndpoints();
 
 app.Run();
 

@@ -21,8 +21,6 @@ public class DatabaseContext : DbContext
     
     public DbSet<Subscription> Subscriptions { get; set; }
     
-    public DbSet<SubscriptionDicount> SubscriptionsDicounts { get; set; }
-    
     public DbSet<PaymentSubscription> PaymentsSubscriptions { get; set; }
     
     public DbSet<SoftwareVersion> SoftwareVersions { get; set; }
@@ -50,7 +48,7 @@ public class DatabaseContext : DbContext
             CompanyAddress = "123 Test St",
             CompanyEmail = "testcompany@gmail.com",
             CompanyPhone = "123456789",
-            CompanyKRS = "12345678901234"
+            CompanyKRS = "123456789"
         });
 
         modelBuilder.Entity<Person>().HasData(new Person
@@ -156,23 +154,19 @@ public class DatabaseContext : DbContext
             Amount = 1200,
             PaymentInformation = "Test payment"
         });
-
+        
         modelBuilder.Entity<Subscription>().HasData(new Subscription
         {
             SubscriptionId = 1,
             CustomerId = 1,
             SoftwareId = 1,
-            RenewalDate = new DateTime(2023, 1, 1),
+            SubscriptionName = "Test Subscription",
+            RenewalDate = DateTime.Now.AddMonths(1),
             PricePerMonth = 100,
+            FirstPaymentPrice = 100,
             ActiveStatus = true
         });
-
-        modelBuilder.Entity<SubscriptionDicount>().HasData(new SubscriptionDicount
-        {
-            IdSubscription = 1,
-            IdDiscount = 1
-        });
-
+        
         modelBuilder.Entity<PaymentSubscription>().HasData(new PaymentSubscription
         {
             PaymentId = 1,
